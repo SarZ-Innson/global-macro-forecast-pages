@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>全球宏观预测市场 | 历史概率快照</title>
+  <meta name="description" content="已审核的全球宏观预测市场概率与历史走势，按数据采集时间展示。">
+  <link rel="stylesheet" href="site.css">
+  <script src="site.js" defer></script>
+</head>
+<body>
+  <header class="topbar"><div class="container"><strong>全球宏观预测</strong><span>Polymarket 数据快照</span></div></header>
+  <main class="container">
+    <div class="intro">
+      <div class="eyebrow">历史概率 · 已审核范围</div>
+      <h1>宏观事件预测市场</h1>
+      <p>查看各事件的结果选项、最新概率和历史走势。这里展示的是固定时点的快照，不代表实时行情。</p>
+      <p id="snapshot" class="snapshot" aria-live="polite">正在加载数据…</p>
+    </div>
+    <div class="workspace">
+      <aside class="sidebar" aria-label="事件列表">
+        <div class="sidebar-heading"><h2>事件</h2><span id="count"></span></div>
+        <label class="filter-label" for="category">分类</label>
+        <select id="category"><option value="">全部分类</option></select>
+        <div id="events" class="event-list"></div>
+      </aside>
+      <section class="detail" id="detail" aria-live="polite">
+        <p class="hint">选择左侧事件，查看各选项的概率和历史变化。</p>
+      </section>
+    </div>
+  </main>
+  <footer class="container">来源：Polymarket 公共市场数据 · 概率仅供信息参考 · 请以每条曲线标记的来源时间为准</footer>
+</body>
+</html>
