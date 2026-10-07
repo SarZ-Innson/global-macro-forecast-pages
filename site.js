@@ -13,9 +13,18 @@ function percent(value) {
   return `${Number(n.toFixed(n >= 10 ? 1 : 2))}%`;
 }
 
-function utc(value) {
+function beijing(value) {
   const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? value : d.toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
+  if (Number.isNaN(d.getTime())) return value;
+  const formatted = new Intl.DateTimeFormat('sv-SE', {
+    timeZone: 'Asia/Shanghai',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(d);
+  return `${formatted.replace(' ', ' ')} 北京时间`;
 }
 
 function svg(tag, attributes = {}) {
@@ -74,16 +83,16 @@ function drawChart(markets) {
     const points = market.history;
     const path = svg('polyline', { points: points.map(p => `${scaleX(Date.parse(p.t)).toFixed(2)},${scaleY(p.p).toFixed(2)}`).join(' '), fill: 'none', stroke: color(index), 'stroke-width': '2', 'stroke-linejoin': 'round', 'stroke-linecap': 'round' });
     const title = svg('title');
-    title.textContent = `${market.question} · ${percent(market.current_probability)} · ${utc(market.probability_as_of)}`;
+    title.textContent = `${market.question} · ${percent(market.current_probability)} · ${beijing(market.probability_as_of)}`;
     path.append(title);
     chart.append(path);
     const final = points[points.length - 1];
     chart.append(svg('circle', { cx: scaleX(Date.parse(final.t)), cy: scaleY(final.p), r: 4, fill: color(index), stroke: '#fff', 'stroke-width': 1.5 }));
   });
   const firstLabel = svg('text', { x: left, y: 313 });
-  firstLabel.textContent = utc(new Date(earliest).toISOString());
+  firstLabel.textContent = beijing(new Date(earliest).toISOString());
   const lastLabel = svg('text', { x: right, y: 313, 'text-anchor': 'end' });
-  lastLabel.textContent = utc(new Date(latest).toISOString());
+  lastLabel.textContent = beijing(new Date(latest).toISOString());
   chart.append(firstLabel, lastLabel);
   layout.append(chart);
   const legend = document.createElement('div');
@@ -119,7 +128,7 @@ function drawTable(markets) {
   const table = document.createElement('table');
   const header = document.createElement('thead');
   const headerRow = document.createElement('tr');
-  for (const text of ['事件走向', '来源时间（UTC）', '概率']) {
+  for (const text of ['事件走向', '来源时间（北京时间）', '概率']) {
     const th = document.createElement('th'); th.scope = 'col'; th.textContent = text; headerRow.append(th);
   }
   header.append(headerRow);
@@ -129,7 +138,7 @@ function drawTable(markets) {
     const th = document.createElement('th'); th.scope = 'row';
     const swatch = document.createElement('span'); swatch.className = 'swatch'; swatch.style.background = color(index);
     th.append(swatch, document.createTextNode(market.question));
-    const time = document.createElement('td'); time.textContent = utc(market.probability_as_of);
+    const time = document.createElement('td'); time.textContent = beijing(market.probability_as_of);
     const value = document.createElement('td'); value.textContent = percent(market.current_probability);
     tr.append(th, time, value); body.append(tr);
   });
@@ -161,7 +170,8 @@ async function selectEvent(entry) {
 async function start() {
   try {
     catalog = await read('data/v1/index.json');
-    document.getElementById('snapshot').textContent = `快照数据截至 ${utc(catalog.data_as_of)} · ${catalog.event_count} 个事件 · ${catalog.market_count} 个选项 · 非实时`;
+    document.getElementById('snapshot').textContent =
+      `当前最新共 ${catalog.event_count} 个事件；更新时间 ${beijing(catalog.data_as_of)}`;
     for (const category of [...new Set(catalog.events.flatMap(e => e.categories))].sort()) {
       const option = document.createElement('option'); option.value = category; option.textContent = category; filterNode.append(option);
     }
